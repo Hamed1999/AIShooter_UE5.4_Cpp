@@ -20,21 +20,30 @@ void ASoldierCharacter::CreateMappingContext()
 	}
 }
 
-// Sets default values
-ASoldierCharacter::ASoldierCharacter()
+void ASoldierCharacter::CreateSpringArm()
 {
-	PrimaryActorTick.bCanEverTick = true;
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(FName("Spring Arm"));
 	SpringArm->SetupAttachment(RootComponent);
+}
+
+void ASoldierCharacter::CreateCamera()
+{
 	Camera = CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	Camera->SetupAttachment(SpringArm);
 }
 
-// Called when the game starts or when spawned
+// Sets default values
+ASoldierCharacter::ASoldierCharacter()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	CreateSpringArm();
+	CreateCamera();
+}
+
 void ASoldierCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CreateMappingContext();
 }
 
 // Called every frame

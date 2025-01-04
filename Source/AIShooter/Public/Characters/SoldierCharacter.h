@@ -30,6 +30,8 @@ private:
 	 * Methods
 	 */
 	void CreateMappingContext();
+	void CreateSpringArm();
+	void CreateCamera();
 	void BindEnhancedInputs(UInputComponent* PlayerInputComponent);
 	void MoveForward(const struct FInputActionValue& InputValue);
 	void MoveRight(const  FInputActionValue& InputValue);
