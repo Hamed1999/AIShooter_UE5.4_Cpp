@@ -70,7 +70,7 @@ void ASoldierCharacter::TurnCameraView(const FInputActionValue& InputValue)
 {
 	const FVector2D TurnCameraViewValue = InputValue.Get<FVector2D>();
 	AddControllerYawInput(TurnCameraViewValue.X);
-	AddControllerPitchInput(TurnCameraViewValue.Y);
+	AddControllerPitchInput(-1*TurnCameraViewValue.Y);
 }
 
 void ASoldierCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
