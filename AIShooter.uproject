@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{2BFD586B-44A9-6053-CDF9-E5A6C00A35D4}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "AIShooter",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
