@@ -26,8 +26,30 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
-	UPROPERTY(EditAnywhere, Category= "Components", Meta = (AllowPrivateAccess))
+	/**
+	 * Methods
+	 */
+	void CreateMappingContext();
+	void BindEnhancedInputs(UInputComponent* PlayerInputComponent);
+	void MoveForward(const struct FInputActionValue& InputValue);
+	void MoveRight(const  FInputActionValue& InputValue);
+	void TurnCameraView(const  FInputActionValue& InputValue);
+	
+	/**
+	 * Global Properties
+	 */
+	// Copmponents
+	UPROPERTY(EditAnywhere, Category= "Components", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		class USpringArmComponent* SpringArm;
-	UPROPERTY(EditAnywhere, Category= "Components", Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, Category= "Components", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		class UCameraComponent* Camera;
+	// Default Iputs
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		class UInputMappingContext* DefaultMappingContext;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		class UInputAction* IA_MovingForward;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		 UInputAction* IA_MovingRight;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		 UInputAction* IA_CameraView;
 };
