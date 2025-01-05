@@ -32,7 +32,7 @@ void ASoldierCharacter::CreateCamera()
 	Camera->SetupAttachment(SpringArm);
 }
 
-// Sets default values
+
 ASoldierCharacter::ASoldierCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -60,6 +60,7 @@ void ASoldierCharacter::BindEnhancedInputs(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(IA_MovingForward, ETriggerEvent::Triggered, this, &ASoldierCharacter::MoveForward);
 		EnhancedInputComponent->BindAction(IA_MovingRight, ETriggerEvent::Triggered, this, &ASoldierCharacter::MoveRight);
 		EnhancedInputComponent->BindAction(IA_CameraView, ETriggerEvent::Triggered, this, &ASoldierCharacter::TurnCameraView);
+		EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &ASoldierCharacter::Jump);
 	}
 }
 

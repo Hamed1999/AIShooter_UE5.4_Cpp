@@ -54,4 +54,6 @@ private:
 		 UInputAction* IA_MovingRight;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		 UInputAction* IA_CameraView;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UInputAction* IA_Jump;
 };
