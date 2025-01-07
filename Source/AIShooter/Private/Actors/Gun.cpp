@@ -4,6 +4,7 @@
 #include "Actors/Gun.h"
 
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 #define OUT
 
@@ -41,18 +42,26 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::Shoot()
 {
+	if(FireSound)
+		UGameplayStatics::SpawnSoundAttached(FireSound, GunMeshComponent, FName("MuzzleSocketFlash"));
+	for (UParticleSystem* FireParticle : FireParticles)
+	{
+		if(FireParticle)
+			UGameplayStatics::SpawnEmitterAttached(FireParticle, GunMeshComponent, FName("MuzzleSocketFlash"));
+	}
+	
 	FVector CameraLocation = FVector().Zero();
 	FRotator CameraRotation = FRotator().ZeroRotator;
 	if(APawn* OwnerPawn = Cast<APawn>(GetOwner()))
 	{
 		OwnerPawn->GetController()->GetPlayerViewPoint(OUT CameraLocation, OUT CameraRotation);
 	}
-	DrawDebugCamera(GetWorld(), CameraLocation, CameraRotation, 90, 2,FColor::Red, false, 1);
+	// DrawDebugCamera(GetWorld(), CameraLocation, CameraRotation, 90, 2,FColor::Red, false, 1);
 
 	FHitResult BulletHitResult;
 	FVector TraceEnd = CameraLocation + CameraRotation.Vector() * TraceRange;
 	GetWorld()->LineTraceSingleByChannel(OUT BulletHitResult, CameraLocation, TraceEnd, ECollisionChannel::ECC_EngineTraceChannel1);
 
-	DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, FColor::Yellow, false, 1, 0, 3);
+	// DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, FColor::Yellow, false, 1, 0, 3);
 }
 

@@ -33,5 +33,9 @@ private:
 		USkeletalMeshComponent* GunMeshComponent;
 	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		float TraceRange = 45000;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		USoundBase* FireSound = nullptr;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		TArray<UParticleSystem*> FireParticles;
 
 };

@@ -98,7 +98,13 @@ void ASoldierCharacter::TurnCameraView(const FInputActionValue& InputValue)
 
 void ASoldierCharacter::Fire()
 {
+	bIsFiring = true;
 	Gun->Shoot();
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDel;
+	TimerDel.BindLambda([&]()
+	{bIsFiring = false;});
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, 0.05,false);
 }
 
 void ASoldierCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
