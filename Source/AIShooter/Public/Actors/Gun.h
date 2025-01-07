@@ -37,5 +37,15 @@ private:
 		USoundBase* FireSound = nullptr;
 	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		TArray<UParticleSystem*> FireParticles;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		USoundBase* ImpactSurfaceSound = nullptr;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		USoundBase* ImpactBodySound = nullptr;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		TArray<UParticleSystem*> ImpactSurfaceParticles;
+	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		TArray<UParticleSystem*> ImpactBodyParticles;
+	
+		
 
 };

@@ -60,7 +60,29 @@ void AGun::Shoot()
 
 	FHitResult BulletHitResult;
 	FVector TraceEnd = CameraLocation + CameraRotation.Vector() * TraceRange;
-	GetWorld()->LineTraceSingleByChannel(OUT BulletHitResult, CameraLocation, TraceEnd, ECollisionChannel::ECC_EngineTraceChannel1);
+	if(GetWorld()->LineTraceSingleByChannel(OUT BulletHitResult, CameraLocation, TraceEnd, ECollisionChannel::ECC_GameTraceChannel1))
+	{
+		if (APawn* DamagedPawn = Cast<APawn>(BulletHitResult.GetActor()))
+		{
+			if(ImpactSurfaceSound)
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactBodySound, BulletHitResult.ImpactPoint);
+			for (UParticleSystem* ImpactBodyParticle : ImpactBodyParticles)
+			{
+				if(ImpactBodyParticle)
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactBodyParticle, BulletHitResult.ImpactPoint, BulletHitResult.ImpactNormal.Rotation());
+			}
+		}
+		else
+		{
+			if(ImpactSurfaceSound)
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSurfaceSound, BulletHitResult.ImpactPoint);
+			for (UParticleSystem* ImpactSurfaceParticle : ImpactSurfaceParticles)
+			{
+				if(ImpactSurfaceParticle)
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactSurfaceParticle, BulletHitResult.ImpactPoint, BulletHitResult.ImpactNormal.Rotation());
+			}
+		}
+	}
 
 	// DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, FColor::Yellow, false, 1, 0, 3);
 }
