@@ -14,6 +14,7 @@ class AISHOOTER_API ASoldierCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ASoldierCharacter();
+	void SpawnGun();
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,10 +37,14 @@ private:
 	void MoveForward(const struct FInputActionValue& InputValue);
 	void MoveRight(const  FInputActionValue& InputValue);
 	void TurnCameraView(const  FInputActionValue& InputValue);
+	void Fire();
 	
 	/**
 	 * Global Properties
 	 */
+	UPROPERTY(EditAnywhere, Category= "Gun", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	TSubclassOf<class AGun> GunClass;
+	AGun* Gun = nullptr;
 	// Copmponents
 	UPROPERTY(EditAnywhere, Category= "Components", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		class USpringArmComponent* SpringArm;
@@ -56,4 +61,6 @@ private:
 		 UInputAction* IA_CameraView;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		UInputAction* IA_Jump;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UInputAction* IA_Fire;
 };

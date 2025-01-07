@@ -8,6 +8,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MovieSceneTracksComponentTypes.h"
+#include "Actors/Gun.h"
 
 void ASoldierCharacter::CreateMappingContext()
 {
@@ -40,10 +42,20 @@ ASoldierCharacter::ASoldierCharacter()
 	CreateCamera();
 }
 
+void ASoldierCharacter::SpawnGun()
+{
+	if (!GunClass) return;
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	GetMesh()->HideBoneByName(FName("gun"), PBO_None);
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunSocket"));
+	Gun->SetOwner(this);
+}
+
 void ASoldierCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateMappingContext();
+	SpawnGun();
 }
 
 // Called every frame
@@ -61,6 +73,7 @@ void ASoldierCharacter::BindEnhancedInputs(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(IA_MovingRight, ETriggerEvent::Triggered, this, &ASoldierCharacter::MoveRight);
 		EnhancedInputComponent->BindAction(IA_CameraView, ETriggerEvent::Triggered, this, &ASoldierCharacter::TurnCameraView);
 		EnhancedInputComponent->BindAction(IA_Jump, ETriggerEvent::Triggered, this, &ASoldierCharacter::Jump);
+		EnhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Triggered, this, &ASoldierCharacter::Fire);
 	}
 }
 
@@ -81,6 +94,11 @@ void ASoldierCharacter::TurnCameraView(const FInputActionValue& InputValue)
 	const FVector2D TurnCameraViewValue = InputValue.Get<FVector2D>();
 	AddControllerYawInput(TurnCameraViewValue.X);
 	AddControllerPitchInput(-1*TurnCameraViewValue.Y);
+}
+
+void ASoldierCharacter::Fire()
+{
+	Gun->Shoot();
 }
 
 void ASoldierCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
