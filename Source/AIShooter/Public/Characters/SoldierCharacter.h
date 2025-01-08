@@ -12,19 +12,11 @@ class AISHOOTER_API ASoldierCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ASoldierCharacter();
-	void SpawnGun();
-
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite)
 		bool bIsFiring = false;
@@ -35,12 +27,16 @@ private:
 	void CreateMappingContext();
 	void CreateSpringArm();
 	void CreateCamera();
+	void SpawnGun();
 	void BindEnhancedInputs(UInputComponent* PlayerInputComponent);
 	void MoveForward(const struct FInputActionValue& InputValue);
 	void MoveRight(const  FInputActionValue& InputValue);
 	void TurnCameraView(const  FInputActionValue& InputValue);
 	void Fire();
-	
+	void HandleDeath();
+	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	UFUNCTION(BlueprintPure)
+		bool IsDead();
 	/**
 	 * Global Properties
 	 */
@@ -65,4 +61,8 @@ private:
 		UInputAction* IA_Jump;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		UInputAction* IA_Fire;
+	// Properties
+	UPROPERTY(EditAnywhere, Category= "Health", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0.0"))
+		float MaxHealth = 100;
+	float Health;
 };

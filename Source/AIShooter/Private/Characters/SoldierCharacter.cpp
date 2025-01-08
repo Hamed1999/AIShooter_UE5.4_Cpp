@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "MovieSceneTracksComponentTypes.h"
 #include "Actors/Gun.h"
+#include "Components/CapsuleComponent.h"
 
 void ASoldierCharacter::CreateMappingContext()
 {
@@ -56,6 +57,7 @@ void ASoldierCharacter::BeginPlay()
 	Super::BeginPlay();
 	CreateMappingContext();
 	SpawnGun();
+	Health = MaxHealth;
 }
 
 // Called every frame
@@ -106,6 +108,39 @@ void ASoldierCharacter::Fire()
 	{bIsFiring = false;});
 	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, 0.05,false);
 }
+
+void ASoldierCharacter::HandleDeath()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DetachFromControllerPendingDestroy();
+	FTimerHandle DestroyTimerHandle;
+	FTimerDelegate DestroyTimerDel;
+	DestroyTimerDel.BindLambda([&]()
+	{
+		Gun->Destroy();
+		Destroy();
+	});
+	GetWorldTimerManager().SetTimer(DestroyTimerHandle, DestroyTimerDel, 7.0,false);
+}
+
+float ASoldierCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                                    AActor* DamageCauser)
+{
+	float ActualDamage =  Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	Health -= ActualDamage;
+	if (IsDead())
+	{
+		HandleDeath();
+	}
+	UE_LOG(LogTemp, Error, TEXT("Health of %s = %f"), *this->GetName(), Health)
+	return ActualDamage;
+}
+
+bool ASoldierCharacter::IsDead()
+{
+	return Health <= 0;
+}
+
 
 void ASoldierCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
