@@ -47,7 +47,12 @@ void ASoldierCharacter::SpawnGun()
 {
 	if (!GunClass) return;
 	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
-	GetMesh()->HideBoneByName(FName("gun"), PBO_None);
+	if (SoldierTeam == ESoldierTeam::PeaceTeam)
+		GetMesh()->HideBoneByName(FName("gun"), PBO_None);
+	else
+	{
+		Gun->HideMesh(true);
+	}
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunSocket"));
 	Gun->SetOwner(this);
 }
@@ -113,6 +118,12 @@ void ASoldierCharacter::HandleDeath()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DetachFromControllerPendingDestroy();
+	//GetController()->PawnPendingDestroy(this);
+	if (SoldierTeam == ESoldierTeam::PeaceTeam)
+	{
+		GetWorld()->GetFirstPlayerController()->StartSpectatingOnly();
+	}
+	
 	FTimerHandle DestroyTimerHandle;
 	FTimerDelegate DestroyTimerDel;
 	DestroyTimerDel.BindLambda([&]()

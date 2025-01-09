@@ -24,10 +24,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
 public:	
 	virtual void Tick(float DeltaTime) override;
 	void Shoot();
+	void HideMesh(bool State);
 
 private:
 	/**
@@ -35,11 +35,11 @@ private:
 	 */
 	void CreateRootComponent();
 	void CreateGunMeshComponent();
-	void FiringEffects();
+	void HandleFiringEffects();
 	void FindCameraPoint();
 	bool ApplyBulletTrace(FHitResult& BulletHitResult);
-	void HandleSurfaceImpactEffects(FHitResult const&  BulletHitResult);
-	void HandleBodyImpactEffects(FHitResult const& BulletHitResult);
+	void HandleBodyImpactEffects(FHitResult const&  BulletHitResult);
+	void HandleSurfaceImpactEffects(FHitResult const& BulletHitResult);
 	void HandleRadialDamage(FHitResult const& BulletHitResult);
 	void HandleApplyDamage(FHitResult const& BulletHitResult, APawn* const& DamagedPawn);
 	/**
@@ -69,6 +69,7 @@ private:
 		float DamageInnerRadius = 300;
 	UPROPERTY(EditAnywhere, Category= "Properties | Damage | Radial With Falloff", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
 		float DamageOuterRadius = 1000;
+	bool bHideMesh = false;
 	/**
 	 * 1 is linear.
 	 * Greater than 1 cause damage to drop more rapidly between the inner and outer radii.
@@ -88,7 +89,4 @@ private:
 		TArray<UParticleSystem*> ImpactSurfaceParticles;
 	UPROPERTY(EditAnywhere, Category= "Effects", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		TArray<UParticleSystem*> ImpactBodyParticles;
-	
-		
-
 };

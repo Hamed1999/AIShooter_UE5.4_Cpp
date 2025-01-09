@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Engine/DamageEvents.h" // For FPointDamageEvent
+#include "Characters/SoldierCharacter.h"
 
 #define OUT
 
@@ -33,23 +34,35 @@ AGun::AGun()
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void AGun::FiringEffects()
+void AGun::HandleFiringEffects()
 {
+	FName TargetSocket;
+	USkeletalMeshComponent* TargetMeshComponent;
+	FRotator TargetRotation = FRotator(0.f);
+	if (bHideMesh)
+	{
+		TargetMeshComponent = Cast<ASoldierCharacter>(GetOwner())->GetMesh();
+		TargetSocket = FName("gun_barrel");
+		TargetRotation = FRotator(-90,-90,0);
+	}
+	else
+	{
+		TargetMeshComponent = GunMeshComponent;
+		TargetSocket = FName("MuzzleSocketFlash");
+	}
 	if(FireSound)
-		UGameplayStatics::SpawnSoundAttached(FireSound, GunMeshComponent, FName("MuzzleSocketFlash"));
+		UGameplayStatics::SpawnSoundAttached(FireSound, TargetMeshComponent, TargetSocket, FVector(0),TargetRotation);
 	for (UParticleSystem* FireParticle : FireParticles)
 	{
 		if(FireParticle)
-			UGameplayStatics::SpawnEmitterAttached(FireParticle, GunMeshComponent, FName("MuzzleSocketFlash"));
+			UGameplayStatics::SpawnEmitterAttached(FireParticle, TargetMeshComponent, TargetSocket,FVector(0),TargetRotation);
 	}
 }
 
@@ -69,7 +82,7 @@ bool AGun::ApplyBulletTrace(FHitResult& BulletHitResult)
 	return HitSomething;
 }
 
-void AGun::HandleSurfaceImpactEffects (FHitResult const& BulletHitResult)
+void AGun::HandleBodyImpactEffects (FHitResult const& BulletHitResult)
 {
 	if(ImpactSurfaceSound)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactBodySound, BulletHitResult.ImpactPoint);
@@ -80,7 +93,7 @@ void AGun::HandleSurfaceImpactEffects (FHitResult const& BulletHitResult)
 	}
 }
 
-void AGun::HandleBodyImpactEffects(FHitResult const& BulletHitResult)
+void AGun::HandleSurfaceImpactEffects(FHitResult const& BulletHitResult)
 {
 	if(ImpactSurfaceSound)
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSurfaceSound, BulletHitResult.ImpactPoint);
@@ -123,23 +136,29 @@ void AGun::HandleApplyDamage(FHitResult const& BulletHitResult, APawn* const& Da
 
 void AGun::Shoot()
 {
-	FiringEffects();
+	HandleFiringEffects();
 	FindCameraPoint();
 	FHitResult BulletHitResult;
 	if(ApplyBulletTrace(BulletHitResult))
 	{
 		if (APawn* DamagedPawn = Cast<APawn>(BulletHitResult.GetActor()))
 		{
-			HandleSurfaceImpactEffects(BulletHitResult);
+			HandleBodyImpactEffects(BulletHitResult);
 			HandleApplyDamage(BulletHitResult, DamagedPawn);
 		}
 		else
 		{
-			HandleBodyImpactEffects(BulletHitResult);
+			HandleSurfaceImpactEffects(BulletHitResult);
 			HandleRadialDamage(BulletHitResult);
 		}
 	}
 
 	// DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, FColor::Yellow, false, 1, 0, 3);
+}
+
+void AGun::HideMesh(bool State)
+{
+	bHideMesh = State;
+	GunMeshComponent->SetVisibility(false);
 }
 
