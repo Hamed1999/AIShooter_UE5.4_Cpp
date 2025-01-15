@@ -75,10 +75,20 @@ void AGun::FindCameraPoint()
 	// DrawDebugCamera(GetWorld(), CameraLocation, CameraRotation, 90, 2,FColor::Red, false, 1);
 }
 
+void AGun::SetIgnoredActorsAsParams(FCollisionQueryParams& Params)
+{
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+	IgnoredActors.Add(GetOwner());
+	Params.AddIgnoredActors(IgnoredActors);
+}
+
 bool AGun::ApplyBulletTrace(FHitResult& BulletHitResult)
 {
+	FCollisionQueryParams Params;
+	SetIgnoredActorsAsParams(Params);
 	FVector TraceEnd = CameraLocation + CameraRotation.Vector() * TraceRange;
-	bool HitSomething = GetWorld()->LineTraceSingleByChannel(OUT BulletHitResult, CameraLocation, TraceEnd, ECollisionChannel::ECC_GameTraceChannel1);
+	bool HitSomething = GetWorld()->LineTraceSingleByChannel(OUT BulletHitResult, CameraLocation, TraceEnd, ECollisionChannel::ECC_GameTraceChannel1, Params);
 	return HitSomething;
 }
 
@@ -134,7 +144,7 @@ void AGun::HandleApplyDamage(FHitResult const& BulletHitResult, APawn* const& Da
 		HandleRadialDamage(BulletHitResult);
 }
 
-void AGun::Shoot()
+AActor* AGun::Shoot()
 {
 	HandleFiringEffects();
 	FindCameraPoint();
@@ -151,8 +161,9 @@ void AGun::Shoot()
 			HandleSurfaceImpactEffects(BulletHitResult);
 			HandleRadialDamage(BulletHitResult);
 		}
+		return BulletHitResult.GetActor();
 	}
-
+	return nullptr;
 	// DrawDebugLine(GetWorld(), CameraLocation, TraceEnd, FColor::Yellow, false, 1, 0, 3);
 }
 

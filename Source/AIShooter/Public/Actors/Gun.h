@@ -26,7 +26,7 @@ protected:
 	virtual void BeginPlay() override;
 public:	
 	virtual void Tick(float DeltaTime) override;
-	void Shoot();
+	AActor* Shoot();
 	void HideMesh(bool State);
 
 private:
@@ -37,6 +37,7 @@ private:
 	void CreateGunMeshComponent();
 	void HandleFiringEffects();
 	void FindCameraPoint();
+	void SetIgnoredActorsAsParams(FCollisionQueryParams& Params);
 	bool ApplyBulletTrace(FHitResult& BulletHitResult);
 	void HandleBodyImpactEffects(FHitResult const&  BulletHitResult);
 	void HandleSurfaceImpactEffects(FHitResult const& BulletHitResult);

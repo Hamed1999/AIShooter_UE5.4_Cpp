@@ -11,6 +11,7 @@
 #include "MovieSceneTracksComponentTypes.h"
 #include "Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
+#include "AIs/EnemyAIController.h"
 
 void ASoldierCharacter::CreateMappingContext()
 {
@@ -57,19 +58,28 @@ void ASoldierCharacter::SpawnGun()
 	Gun->SetOwner(this);
 }
 
+void ASoldierCharacter::SetAIController()
+{
+	if (!bIsLeader)
+	{
+		AIControllerClass = AEnemyAIController::StaticClass();
+	}
+}
+
 void ASoldierCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateMappingContext();
 	SpawnGun();
 	Health = MaxHealth;
+	SetTeamId();
+	SetAIController();
 }
 
 // Called every frame
 void ASoldierCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASoldierCharacter::BindEnhancedInputs(UInputComponent* PlayerInputComponent)
@@ -103,15 +113,20 @@ void ASoldierCharacter::TurnCameraView(const FInputActionValue& InputValue)
 	AddControllerPitchInput(-1*TurnCameraViewValue.Y);
 }
 
-void ASoldierCharacter::Fire()
+AActor* ASoldierCharacter::Shoot()
 {
 	bIsFiring = true;
-	Gun->Shoot();
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDel;
 	TimerDel.BindLambda([&]()
-	{bIsFiring = false;});
-	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, 0.05,false);
+		{bIsFiring = false;});
+	GetWorldTimerManager().SetTimer(TimerHandle, TimerDel, 0.01,false);
+	return Gun->Shoot();
+}
+
+void ASoldierCharacter::Fire()
+{
+	Shoot();
 }
 
 void ASoldierCharacter::HandleDeath()
@@ -119,7 +134,7 @@ void ASoldierCharacter::HandleDeath()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DetachFromControllerPendingDestroy();
 	//GetController()->PawnPendingDestroy(this);
-	if (SoldierTeam == ESoldierTeam::PeaceTeam)
+	if (SoldierTeam == ESoldierTeam::PeaceTeam && bIsLeader) 
 	{
 		GetWorld()->GetFirstPlayerController()->StartSpectatingOnly();
 	}
@@ -150,6 +165,26 @@ float ASoldierCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEven
 bool ASoldierCharacter::IsDead()
 {
 	return Health <= 0;
+}
+
+float ASoldierCharacter::GetHealthPercentage()
+{
+	return Health / MaxHealth;
+}
+
+void ASoldierCharacter::SetTeamId()
+{
+	if (SoldierTeam == ESoldierTeam::PeaceTeam)
+		TeamId = FGenericTeamId(0);
+	else if (SoldierTeam == ESoldierTeam::DevilTeam)
+		TeamId = FGenericTeamId(1);
+	else
+		TeamId = FGenericTeamId(255);
+}
+
+FGenericTeamId ASoldierCharacter::GetGenericTeamId() const
+{
+	return TeamId;
 }
 
 

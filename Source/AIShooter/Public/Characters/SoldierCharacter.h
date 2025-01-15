@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "GameFramework/Character.h"
 #include "SoldierCharacter.generated.h"
 
@@ -14,7 +15,7 @@ enum class ESoldierTeam : uint8
 };
 
 UCLASS()
-class AISHOOTER_API ASoldierCharacter : public ACharacter
+class AISHOOTER_API ASoldierCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -27,6 +28,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite)
 		bool bIsFiring = false;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	AActor* Shoot();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bIsLeader = false;
+	UFUNCTION(BlueprintPure)
+		bool IsDead();
+	float GetHealthPercentage();
 private:
 	/**
 	 * Methods
@@ -35,6 +43,7 @@ private:
 	void CreateSpringArm();
 	void CreateCamera();
 	void SpawnGun();
+	void SetAIController();
 	void BindEnhancedInputs(UInputComponent* PlayerInputComponent);
 	void MoveForward(const struct FInputActionValue& InputValue);
 	void MoveRight(const  FInputActionValue& InputValue);
@@ -42,8 +51,7 @@ private:
 	void Fire();
 	void HandleDeath();
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	UFUNCTION(BlueprintPure)
-		bool IsDead();
+	void SetTeamId();
 	/**
 	 * Global Properties
 	 */
@@ -74,4 +82,6 @@ private:
 	float Health;
 	UPROPERTY(EditAnywhere, Category= "Team", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		ESoldierTeam SoldierTeam = ESoldierTeam::PeaceTeam;
+	UPROPERTY(EditAnywhere, Category= "Team", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		FGenericTeamId TeamId = FGenericTeamId(0);
 };

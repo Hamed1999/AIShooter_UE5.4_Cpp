@@ -19,9 +19,21 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	/**
+	 * Methods
+	 */
+	void CreateSightSenseConfig();
+	void CreateAIPerception();
+	void SetTeamId();
+	UFUNCTION(BlueprintType)
+		void OnPlayerSeen(AActor* Actor, struct FAIStimulus Stimulus);
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		UBehaviorTree* BT_EnemyBehavior;
-
-	APawn* PlayerPawn;
+	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UAIPerceptionComponent* AIPerceptionComponent;
+	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		class UAISenseConfig_Sight* SenseConfig_Sight;
+	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		FGenericTeamId TeamId = FGenericTeamId(1);
 };
