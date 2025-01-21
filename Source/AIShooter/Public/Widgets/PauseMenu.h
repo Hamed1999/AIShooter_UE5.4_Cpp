@@ -13,5 +13,25 @@ UCLASS()
 class AISHOOTER_API UPauseMenu : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	virtual bool Initialize() override;
+	void SetupController(class AShooterPlayerController* NewPlayerController);
+private:
+	UFUNCTION(BlueprintCallable, Category = "Buttons")
+		void ResumeGame();
+	UFUNCTION(BlueprintCallable, Category = "Buttons")
+		void RestartGame();
+	UFUNCTION(BlueprintCallable, Category = "Buttons")
+		void ExitGame();
 	
+	UPROPERTY(Meta = (BindWidget))
+		class UButton* ResumeButton;
+	UPROPERTY(Meta = (BindWidget))
+		UButton* RestartButton;
+	UPROPERTY(Meta = (BindWidget))
+		UButton* ExitButton;
+
+	AShooterPlayerController* PlayerController = nullptr;
 };
+
+

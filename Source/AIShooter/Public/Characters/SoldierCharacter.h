@@ -35,6 +35,7 @@ public:
 	UFUNCTION(BlueprintPure)
 		bool IsDead();
 	float GetHealthPercentage();
+	void DestroyIt();
 private:
 	/**
 	 * Methods
@@ -49,6 +50,7 @@ private:
 	void MoveRight(const  FInputActionValue& InputValue);
 	void TurnCameraView(const  FInputActionValue& InputValue);
 	void Fire();
+	void CheckGameOver();
 	void HandleDeath();
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void SetTeamId();

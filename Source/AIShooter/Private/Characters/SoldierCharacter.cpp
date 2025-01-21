@@ -9,6 +9,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "MovieSceneTracksComponentTypes.h"
+#include "ShooterGameMode.h"
 #include "Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "AIs/EnemyAIController.h"
@@ -129,8 +130,15 @@ void ASoldierCharacter::Fire()
 	Shoot();
 }
 
+void ASoldierCharacter::CheckGameOver()
+{
+	AShooterGameMode* ShooterGameMode = GetWorld()->GetAuthGameMode<AShooterGameMode>();
+	ShooterGameMode->HandleKills(this);
+}
+
 void ASoldierCharacter::HandleDeath()
 {
+	CheckGameOver();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DetachFromControllerPendingDestroy();
 	//GetController()->PawnPendingDestroy(this);
@@ -138,15 +146,13 @@ void ASoldierCharacter::HandleDeath()
 	{
 		GetWorld()->GetFirstPlayerController()->StartSpectatingOnly();
 	}
-	
 	FTimerHandle DestroyTimerHandle;
 	FTimerDelegate DestroyTimerDel;
 	DestroyTimerDel.BindLambda([&]()
 	{
-		Gun->Destroy();
-		Destroy();
+		DestroyIt();
 	});
-	GetWorldTimerManager().SetTimer(DestroyTimerHandle, DestroyTimerDel, 7.0,false);
+	// GetWorldTimerManager().SetTimer(DestroyTimerHandle, DestroyTimerDel, 7.0,false);
 }
 
 float ASoldierCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -170,6 +176,15 @@ bool ASoldierCharacter::IsDead()
 float ASoldierCharacter::GetHealthPercentage()
 {
 	return Health / MaxHealth;
+}
+
+void ASoldierCharacter::DestroyIt()
+{
+	if (IsValid(this)){
+		if(Gun)
+			Gun->Destroy();
+		Destroy();
+	}
 }
 
 void ASoldierCharacter::SetTeamId()

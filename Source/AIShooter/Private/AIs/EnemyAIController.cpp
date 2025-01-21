@@ -36,16 +36,14 @@ void AEnemyAIController::SetTeamId()
 
 void AEnemyAIController::OnPlayerSeen(AActor* Actor, FAIStimulus Stimulus)
 {
-	// UE_LOG(LogTemp, Error, TEXT("%s Is Seen : )"), *Actor->GetName())
-	if (Stimulus.WasSuccessfullySensed())
+	if (Stimulus.WasSuccessfullySensed() && GetBlackboardComponent())
 	{
-		//UE_LOG(LogTemp, Error, TEXT("In sight : )"))
 		GetBlackboardComponent()->SetValueAsObject(FName("Player"),Actor);
 		SetFocus(Actor, EAIFocusPriority::Gameplay);
+		GetBlackboardComponent()->ClearValue(FName("IsDead"));
 	}
-	else
+	else if (GetBlackboardComponent())
 	{
-		// UE_LOG(LogTemp, Error, TEXT("Out of Sight !"))
 		GetBlackboardComponent()->ClearValue(FName("Player"));
 		ClearFocus(EAIFocusPriority::Gameplay);
 		GetBlackboardComponent()->SetValueAsVector(FName("LastSeenLocation"), Actor->GetActorLocation());
@@ -67,8 +65,17 @@ void AEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetTeamId();
-	RunBehaviorTree(BT_EnemyBehavior);
-	GetBlackboardComponent()->SetValueAsVector(FName("FirstLocation"), GetPawn()->GetActorLocation());
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([&]()
+	{
+		if (BT_EnemyBehavior)
+		{
+			RunBehaviorTree(BT_EnemyBehavior);
+			GetBlackboardComponent()->SetValueAsVector(FName("FirstLocation"), GetPawn()->GetActorLocation());
+		}
+	});
+	GetWorldTimerManager().SetTimer(TimerHandle,TimerDelegate,1,false);
 }
 
 void AEnemyAIController::Tick(float DeltaTime)
