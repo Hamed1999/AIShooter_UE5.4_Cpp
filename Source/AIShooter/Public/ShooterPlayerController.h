@@ -15,17 +15,19 @@ class AISHOOTER_API AShooterPlayerController : public APlayerController
 public:
 	AShooterPlayerController();
 	void ResumeGame();
+	void OpenLevel();
 	UFUNCTION(BlueprintCallable)
 		void RestartGame();
 	UFUNCTION(BlueprintCallable)
 		void ExitGame();
 	UFUNCTION(BlueprintPure)
 		const FString GetTextMessage();
+	void HandleGameOver();
 	virtual void GameHasEnded(AActor* EndGameFocus = nullptr, bool bIsWinner = false) override;
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-	void SetGamePaused();
+	void SetGamePaused(UUserWidget* Widget);
 
 private:
 	void CreateIMC();
@@ -34,7 +36,9 @@ private:
 	void SetPlayerHUDClass();
 	void SetPauseMenuClass();
 	void SetEndGameClass();
+	void SetCheatClass();
 	void PauseGame();
+
 	TSubclassOf<class UPlayerHUD> PlayerHUDClass = nullptr;
 	UPlayerHUD* WBP_HUD = nullptr;
 	TSubclassOf<class UPauseMenu> PauseMenuClass = nullptr;

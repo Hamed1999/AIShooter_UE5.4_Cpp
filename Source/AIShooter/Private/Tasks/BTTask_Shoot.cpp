@@ -15,7 +15,7 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 {
 	ASoldierCharacter* TargetSoldier = Cast<ASoldierCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(FName("Player")));
 	if (AAIController* Controller = OwnerComp.GetAIOwner())
-		if (ASoldierCharacter* SoldierCharacter = Cast<ASoldierCharacter>(Controller->GetPawn()))
+		if (ASoldierCharacter* SoldierCharacter = Cast<ASoldierCharacter>(Controller->GetCharacter()))
 			if (TargetSoldier)
 			{
 				if (TargetSoldier->IsDead())
@@ -23,6 +23,9 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 					OwnerComp.GetBlackboardComponent()->SetValueAsBool(FName("IsDead"),true);
 					return EBTNodeResult::Failed;
 				}
+				UE_LOG(LogTemp, Error, TEXT("Befor Shot Ammo = %i"),SoldierCharacter->GetAmmo())
+				if (SoldierCharacter->GetAmmo() <= 0) return EBTNodeResult::Failed;
+				if (SoldierCharacter->GetMagAmmo() <= 0) return EBTNodeResult::Failed;
 				SoldierCharacter->Shoot();
 				return EBTNodeResult::Succeeded;
 			}

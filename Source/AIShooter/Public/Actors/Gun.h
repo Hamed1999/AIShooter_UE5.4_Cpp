@@ -28,7 +28,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	AActor* Shoot();
 	void HideMesh(bool State);
-
+	UPROPERTY(EditAnywhere, Category= "Properties | Gun Type | Trigger", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0.1"))
+		float TriggerIntervals = 0.2;
+	UPROPERTY(EditAnywhere, Category= "Properties | Range", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
+		float ZoomValue = 150;
+	UPROPERTY(EditAnywhere, Category= "Properties | Range", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "5"))
+		float FieldOfView = 8;
+	bool Reload();
+	int CurrentMagAmmo;
+	int CurrentAmmo;
+	UPROPERTY(EditAnywhere, Category= "Ammo", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0.3"))
+		float ReloadTime = 1.3;
+	void SetAmmo(int Ammo);
 private:
 	/**
 	 * Methods
@@ -71,6 +82,11 @@ private:
 	UPROPERTY(EditAnywhere, Category= "Properties | Damage | Radial With Falloff", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
 		float DamageOuterRadius = 1000;
 	bool bHideMesh = false;
+	UPROPERTY(EditAnywhere, Category= "Ammo", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
+	 int MaxAmmo = 144;
+	UPROPERTY(EditAnywhere, Category= "Ammo", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
+		int MaxMagAmmo = 24;
+	
 	/**
 	 * 1 is linear.
 	 * Greater than 1 cause damage to drop more rapidly between the inner and outer radii.

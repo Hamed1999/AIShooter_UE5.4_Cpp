@@ -19,5 +19,6 @@ class AISHOOTER_API UPlayerHUD : public UUserWidget
 private:
 	UFUNCTION(BlueprintPure, Category="Health")
 		float GetPlayerHealth();
-	class ASoldierCharacter* PlayerCharacter = nullptr;
+	UPROPERTY(BlueprintReadOnly, Meta = (AllowPrivateAccess))
+		class ASoldierCharacter* PlayerCharacter = nullptr;
 };

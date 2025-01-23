@@ -36,6 +36,18 @@ public:
 		bool IsDead();
 	float GetHealthPercentage();
 	void DestroyIt();
+	void RemoveSniperViewWidget();
+	UFUNCTION(BlueprintCallable)
+		void Reload();
+	UFUNCTION(BlueprintPure)
+		int GetMagAmmo();
+	UFUNCTION(BlueprintPure)
+		int GetAmmo();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		bool bIsReloading = false;
+	void SetAmmo(int Ammo);
+	void SetHealth(float NewHealth);
+	class AGun* GetActiveGun();
 private:
 	/**
 	 * Methods
@@ -43,8 +55,10 @@ private:
 	void CreateMappingContext();
 	void CreateSpringArm();
 	void CreateCamera();
+	void SetSniperViewClass();
 	void SpawnGun();
 	void SetAIController();
+	void SetTriggerIntervals();
 	void BindEnhancedInputs(UInputComponent* PlayerInputComponent);
 	void MoveForward(const struct FInputActionValue& InputValue);
 	void MoveRight(const  FInputActionValue& InputValue);
@@ -54,12 +68,18 @@ private:
 	void HandleDeath();
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void SetTeamId();
+	void ManageGuns();
+	void ChangeGun(const  FInputActionValue& InputValue);
+	void Zoom();
+	bool GunIsSafe();
 	/**
 	 * Global Properties
 	 */
 	UPROPERTY(EditAnywhere, Category= "Gun", BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	TSubclassOf<class AGun> GunClass;
-	AGun* Gun = nullptr;
+		TArray<TSubclassOf<class AGun>> GunClasses;
+	TArray<AGun*> Guns;
+	UPROPERTY(EditAnywhere, Category= "Gun", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0"))
+		int ActiveGunIndex = 0;
 	// Copmponents
 	UPROPERTY(EditAnywhere, Category= "Components", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		class USpringArmComponent* SpringArm;
@@ -78,6 +98,12 @@ private:
 		UInputAction* IA_Jump;
 	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		UInputAction* IA_Fire;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UInputAction* IA_ChangeGun;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UInputAction* IA_Zoom;
+	UPROPERTY(EditAnywhere, Category= "Default Inputs", BlueprintReadWrite, Meta = (AllowPrivateAccess))
+		UInputAction* IA_Reload;
 	// Properties
 	UPROPERTY(EditAnywhere, Category= "Health", BlueprintReadWrite, Meta = (AllowPrivateAccess, ClampMin = "0.0"))
 		float MaxHealth = 100;
@@ -86,4 +112,8 @@ private:
 		ESoldierTeam SoldierTeam = ESoldierTeam::PeaceTeam;
 	UPROPERTY(EditAnywhere, Category= "Team", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		FGenericTeamId TeamId = FGenericTeamId(0);
+	bool bInZoom = false;
+	bool bCanChangeGun = true;
+	TSubclassOf<class UUserWidget> SniperViewClass = nullptr;
+	UUserWidget* WBP_SniperView = nullptr;
 };

@@ -3,6 +3,7 @@
 
 #include "AIs/EnemyAIController.h"
 
+#include "Actors/Gun.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -73,9 +74,17 @@ void AEnemyAIController::BeginPlay()
 		{
 			RunBehaviorTree(BT_EnemyBehavior);
 			GetBlackboardComponent()->SetValueAsVector(FName("FirstLocation"), GetPawn()->GetActorLocation());
+			//SetReloadTime();
 		}
 	});
 	GetWorldTimerManager().SetTimer(TimerHandle,TimerDelegate,1,false);
+}
+
+void AEnemyAIController::SetReloadTime()
+{
+	ASoldierCharacter* SoldierCharacter = Cast<ASoldierCharacter>(GetPawn());
+	float ReloadInSec = SoldierCharacter->GetActiveGun()->ReloadTime;
+	GetBlackboardComponent()->SetValueAsFloat(FName("ReloadTime"), ReloadInSec);
 }
 
 void AEnemyAIController::Tick(float DeltaTime)

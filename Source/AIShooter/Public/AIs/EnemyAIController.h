@@ -28,6 +28,7 @@ protected:
 	UFUNCTION(BlueprintType)
 		void OnPlayerSeen(AActor* Actor, struct FAIStimulus Stimulus);
 	virtual void BeginPlay() override;
+	void SetReloadTime();
 	
 	UPROPERTY(EditAnywhere, Category= "Properties", BlueprintReadWrite, Meta = (AllowPrivateAccess))
 		UBehaviorTree* BT_EnemyBehavior;

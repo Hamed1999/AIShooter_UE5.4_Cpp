@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "ShooterCheatManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/PauseMenu.h"
 #include "Characters/SoldierCharacter.h"
@@ -56,6 +57,11 @@
 		 EndGameClass = EndGameRef.Class.Get();
  }
 
+ void AShooterPlayerController::SetCheatClass()
+ {
+	 CheatClass = UShooterCheatManager::StaticClass();
+ }
+
  AShooterPlayerController::AShooterPlayerController()
  {
  	SetIMC();
@@ -63,6 +69,7 @@
  	SetPlayerHUDClass();
  	SetPauseMenuClass();
  	SetEndGameClass();
+ 	SetCheatClass();
  }
 
  void AShooterPlayerController::ResumeGame()
@@ -73,14 +80,16 @@
  	SetInputMode(FInputModeGameOnly());
  }
 
+ void AShooterPlayerController::OpenLevel()
+ {
+	 UGameplayStatics::OpenLevel(GetWorld(), TEXT("TestLevel"));
+ }
+
  void AShooterPlayerController::RestartGame()
  {
- 	TSubclassOf<ASoldierCharacter> SoldierClass = ASoldierCharacter::StaticClass();
- 	TArray<AActor*> AllSoldiers;
- 	UGameplayStatics::GetAllActorsOfClass(this, SoldierClass, AllSoldiers);
  	ResumeGame();
- 	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TestLevel"));
- 	
+ 	FTimerHandle TimerHandle;
+ 	GetWorldTimerManager().SetTimer(TimerHandle, this, &AShooterPlayerController::OpenLevel, 1);
  }
 
  void AShooterPlayerController::ExitGame()
@@ -96,14 +105,21 @@
  	return LoseMessage;
  }
 
+ void AShooterPlayerController::HandleGameOver()
+ {
+	 UUserWidget* WBP_EndGame = CreateWidget<UUserWidget>(this, EndGameClass);
+	 WBP_EndGame->AddToViewport();
+	 SetGamePaused(WBP_EndGame);
+ }
+
  void AShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
  {
  	Super::GameHasEnded(EndGameFocus, bIsWinner);
  	bGameResult = bIsWinner;
- 	UUserWidget* WBP_EndGame = CreateWidget<UUserWidget>(this, EndGameClass);
- 	WBP_EndGame->AddToViewport();
  	FTimerHandle TimerHandle;
- 	GetWorldTimerManager().SetTimer(TimerHandle,this, &AShooterPlayerController::SetGamePaused, 2.0, false);
+ 	if(!bIsWinner)
+ 		Cast<ASoldierCharacter>(GetCharacter())->RemoveSniperViewWidget();
+ 	GetWorldTimerManager().SetTimer(TimerHandle,this, &AShooterPlayerController::HandleGameOver, 7.0, false);
  }
 
 
@@ -129,11 +145,15 @@
  	 
  }
 
- void AShooterPlayerController::SetGamePaused()
+ void AShooterPlayerController::SetGamePaused(UUserWidget* Widget)
  {
 	 DisableInput(this);
 	 UGameplayStatics::SetGamePaused(this, true);
 	 SetShowMouseCursor(true);
+ 	FInputModeUIOnly UIOnly = FInputModeUIOnly();
+ 	Widget->SetIsFocusable(true);
+ 	TSharedPtr<SWidget> FocusWidget = Widget->TakeWidget();
+ 	UIOnly.SetWidgetToFocus(FocusWidget);
 	 SetInputMode(FInputModeUIOnly());
  }
 
@@ -147,7 +167,6 @@
  	{
  		WBP_PauseMenu->AddToViewport();
  		WBP_PauseMenu->SetupController(this);
- 		SetGamePaused();
+ 		SetGamePaused(WBP_PauseMenu);
  	}
  }
-

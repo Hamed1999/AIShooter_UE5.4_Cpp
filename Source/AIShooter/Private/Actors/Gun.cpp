@@ -11,6 +11,17 @@
 
 #define OUT
 
+void AGun::SetAmmo(int Ammo)
+{
+	if (Ammo > CurrentMagAmmo)
+		CurrentAmmo = Ammo;
+	else
+	{
+		CurrentAmmo = Ammo;
+		CurrentMagAmmo = Ammo;
+	}
+}
+
 void AGun::CreateRootComponent()
 {
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
@@ -34,6 +45,8 @@ AGun::AGun()
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrentAmmo = MaxAmmo;
+	CurrentMagAmmo = MaxMagAmmo;
 }
 
 void AGun::Tick(float DeltaTime)
@@ -55,7 +68,7 @@ void AGun::HandleFiringEffects()
 	else
 	{
 		TargetMeshComponent = GunMeshComponent;
-		TargetSocket = FName("MuzzleSocketFlash");
+		TargetSocket = FName("MuzzleFlash");
 	}
 	if(FireSound)
 		UGameplayStatics::SpawnSoundAttached(FireSound, TargetMeshComponent, TargetSocket, FVector(0),TargetRotation);
@@ -144,13 +157,34 @@ void AGun::HandleApplyDamage(FHitResult const& BulletHitResult, APawn* const& Da
 		HandleRadialDamage(BulletHitResult);
 }
 
+bool AGun::Reload()
+{
+	if (CurrentAmmo == 0) return false;
+	int dif = MaxMagAmmo - CurrentMagAmmo;
+	if (dif == 0) return true;
+	if (CurrentAmmo >= dif)
+	{
+		CurrentAmmo -= dif;
+		CurrentMagAmmo = MaxMagAmmo;
+	}
+	else
+	{
+		CurrentMagAmmo += CurrentAmmo;
+		CurrentAmmo = 0;
+	}
+	return true;
+}
+
 AActor* AGun::Shoot()
 {
+	if (CurrentMagAmmo <= 0) return nullptr;
 	HandleFiringEffects();
 	FindCameraPoint();
 	FHitResult BulletHitResult;
 	if(ApplyBulletTrace(BulletHitResult))
 	{
+		CurrentMagAmmo--;
+		CurrentAmmo--;
 		if (APawn* DamagedPawn = Cast<APawn>(BulletHitResult.GetActor()))
 		{
 			HandleBodyImpactEffects(BulletHitResult);
